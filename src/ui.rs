@@ -19,11 +19,6 @@ pub fn model(app: &App) -> Model {
         mouse_pressed: false,
     };
 
-    model.density[grid2index(0, 0)] = 0.8;
-    model.density[grid2index(1, 1)] = 0.5;
-    model.density[grid2index(2, 1)] = 1.0;
-    model.density[grid2index(N - 1, N - 1)] = 0.8;
-
     model
 }
 
@@ -45,7 +40,7 @@ pub fn update(_app: &App, model: &mut Model, _: Update) {
     let dt = 1.0 / 60.0;
 
     diffuse(&model.density, &mut new_density, DIFFUSION_FACTOR, dt,
-            BoundMode::Density);
+            &BoundMode::Density);
 
     model.density = new_density;
 }
