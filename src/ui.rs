@@ -1,15 +1,21 @@
 use nannou::prelude::*;
-use nannou::*;
 
 use crate::utils::*;
 use crate::param::*;
 use crate::algo::*;
 
 pub struct Model {
+    // Env
     density: [f32; N * N],
     vel_x: [f32; N * N],
     vel_y: [f32; N * N],
+
+    // Mouse
     mouse_pressed: bool,
+    last_mouse_x: f32,
+    last_mouse_y: f32,
+    mouse_dx: f32,
+    mouse_dy: f32,
 }
 
 pub fn model(app: &App) -> Model {
@@ -21,6 +27,10 @@ pub fn model(app: &App) -> Model {
         vel_x: [0.0; N * N],
         vel_y: [0.0; N * N],
         mouse_pressed: false,
+        last_mouse_x: 0.0,
+        last_mouse_y: 0.0,
+        mouse_dx: 0.0,
+        mouse_dy: 0.0,
     };
 
     // TODO :
@@ -42,10 +52,18 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
     }
 }
 
-pub fn update(_app: &App, model: &mut Model, _: Update) {
+pub fn update(app: &App, model: &mut Model, _: Update) {
+    let dt = 1.0 / 30.0;
+
+    // Update mouse
+    let mouse_pos = app.mouse.position();
+    model.mouse_dx = (mouse_pos.x - model.last_mouse_x) * dt * MOUSE_SENSIVITY;
+    model.mouse_dy = (mouse_pos.y - model.last_mouse_y) * dt * MOUSE_SENSIVITY;
+    model.last_mouse_x = mouse_pos.x;
+    model.last_mouse_y = mouse_pos.y;
+
     // TODO : Mv in algo
     // TODO : Reserve only
-    let dt = 1.0 / 30.0;
     let mut new_density = [0.0; N * N];
     let mut new_vel_x = [0.0; N * N];
     let mut new_vel_y = [0.0; N * N];
@@ -59,11 +77,11 @@ pub fn update(_app: &App, model: &mut Model, _: Update) {
             dt, &BoundMode::Density);
 
     // Velocity update
-    // diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
-    //         dt, &BoundMode::VelX);
+    diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
+            dt, &BoundMode::VelX);
 
-    // diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
-    //         dt, &BoundMode::VelY);
+    diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
+            dt, &BoundMode::VelY);
 
     // model.density = new_density;
     model.vel_x = new_vel_x;
@@ -75,7 +93,7 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     let (w_tile, h_tile) = tile_size(app);
 
     draw.background()
-        .color(PLUM);
+        .color(BLACK);
 
     for i in 0..N {
         for j in 0..N {
@@ -97,6 +115,10 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
     let (i, j) = screen2grid(pos.x, pos.y, app);
 
     if i < N && j < N {
-        model.density[grid2index(i, j)] = 1.0;
+        let idx = grid2index(i, j);
+
+        model.density[idx] = 1.0;
+        model.vel_x[idx] = model.mouse_dx;
+        model.vel_y[idx] = model.mouse_dy;
     }
 }

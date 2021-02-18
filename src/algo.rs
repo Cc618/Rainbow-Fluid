@@ -55,7 +55,6 @@ pub fn advect(dens_init: &[f32; N * N], dens: &mut [f32; N * N],
             let i_end = i_start + 1;
             let j_end = j_start + 1;
 
-            // TODO : Use y - floor(y) instead ?
             let s_end = y - i_start as f32;
             let s_start = 1.0 - s_end as f32;
             let t_end = x - j_start as f32;
