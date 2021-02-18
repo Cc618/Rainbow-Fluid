@@ -15,6 +15,15 @@ pub fn grid2screen(i: f32, j: f32, app: &App) -> (f32, f32) {
     )
 }
 
+pub fn screen2grid(x: f32, y: f32, app: &App) -> (usize, usize) {
+    let bounds = app.window_rect();
+
+    (
+        map_range(y, bounds.bottom(), bounds.top(), 0.0, N as f32) as usize,
+        map_range(x, bounds.left(), bounds.right(), 0.0, N as f32) as usize,
+    )
+}
+
 // TODO : Macro
 pub fn tile_size(app: &App) -> (f32, f32) {
     let (x_start, y_start) = grid2screen(0.0, 0.0, app);
