@@ -14,7 +14,7 @@ pub enum BoundMode {
 
 // TODO : Special args for velocity (b)
 // Diffuse fluid particules
-pub fn diffuse(x_init: &[f32; N * N], x: &mut [f32; N * N], factor: f32,
+pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>, factor: f32,
         dt: f32, mode: &BoundMode) {
     let delta = dt * factor * ((N - 2) * (N - 2)) as f32;
 
@@ -42,9 +42,9 @@ pub fn diffuse(x_init: &[f32; N * N], x: &mut [f32; N * N], factor: f32,
 }
 
 // Move particles
-pub fn advect(dens_init: &[f32; N * N], dens: &mut [f32; N * N],
-        vel_x: &[f32; N * N],
-        vel_y: &[f32; N * N],
+pub fn advect(dens_init: &Vec<f32>, dens: &mut Vec<f32>,
+        vel_x: &Vec<f32>,
+        vel_y: &Vec<f32>,
         dt: f32, mode: &BoundMode) {
     let delta = dt * N as f32;
 
@@ -70,7 +70,7 @@ pub fn advect(dens_init: &[f32; N * N], dens: &mut [f32; N * N],
             dens[grid2index(i, j)] =
                     t_start * (
                         s_start * dens_init[grid2index(i_start, j_start)] +
-                        s_end * dens_init[grid2index(i_start, i_end)]) +
+                        s_end * dens_init[grid2index(i_start, j_end)]) +
                     t_end * (
                         s_start * dens_init[grid2index(i_end, j_start)] +
                         s_end * dens_init[grid2index(i_end, j_end)]);
@@ -80,7 +80,57 @@ pub fn advect(dens_init: &[f32; N * N], dens: &mut [f32; N * N],
     set_bounds(dens, mode);
 }
 
-fn set_bounds(x: &mut [f32; N * N], mode: &BoundMode) {
+// TODO : Rename p and div
+// Conserve mass
+pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
+        p: &mut Vec<f32>, div: &mut Vec<f32>) {
+    let h = 1.0 / (N - 2) as f32;
+
+    for i in 1..N - 1 {
+        for j in 1..N - 1 {
+            let idx = grid2index(i, j);
+
+            div[idx] = -0.5 * h * (
+                vel_x[grid2index(i, j + 1)] - vel_x[grid2index(i, j - 1)] +
+                vel_y[grid2index(i + 1, j)] - vel_y[grid2index(i - 1, j)]);
+
+            p[idx] = 0.0;
+        }
+    }
+
+    set_bounds(div, &BoundMode::Density);
+    set_bounds(p, &BoundMode::Density);
+
+    for _ in 0..RESOLUTION {
+        for i in 1..N - 1 {
+            for j in 1..N - 1 {
+                let idx = grid2index(i, j);
+
+                p[idx] = div[idx] +
+                    p[grid2index(i - 1, j)] + p[grid2index(i + 1, j)] +
+                    p[grid2index(i, j - 1)] + p[grid2index(i, j + 1)];
+                p[idx] /= 4.0;
+            }
+        }
+
+        set_bounds(p, &BoundMode::Density);
+    }
+
+    for i in 1..N - 1 {
+        for j in 1..N - 1 {
+            let idx = grid2index(i, j);
+
+            // TODO : Divide opti
+            vel_x[idx] -= 0.5 * (p[grid2index(i, j + 1)] - p[grid2index(i, j - 1)]) / h;
+            vel_y[idx] -= 0.5 * (p[grid2index(i + 1, j)] - p[grid2index(i - 1, j)]) / h;
+        }
+    }
+
+    set_bounds(vel_x, &BoundMode::VelX);
+    set_bounds(vel_y, &BoundMode::VelY);
+}
+
+fn set_bounds(x: &mut Vec<f32>, mode: &BoundMode) {
     if mode != &BoundMode::Density {
         for i in 1..N - 1 {
             x[grid2index(0, i)]     = -x[grid2index(1, i)];
@@ -88,7 +138,7 @@ fn set_bounds(x: &mut [f32; N * N], mode: &BoundMode) {
             x[grid2index(i, 0)]     = x[grid2index(i, 1)];
             x[grid2index(i, N - 1)] = x[grid2index(i, N - 2)];
 
-            if mode == &BoundMode::VelY {
+            if mode == &BoundMode::VelX {
                 x[grid2index(0, i)]     = -x[grid2index(0, i)];
                 x[grid2index(N - 1, i)] = -x[grid2index(N - 1, i)];
                 x[grid2index(i, 0)]     = -x[grid2index(i, 0)];

@@ -36,3 +36,10 @@ pub fn tile_size(app: &App) -> (f32, f32) {
 pub fn grid2index(i: usize, j: usize) -> usize {
     i * N + j
 }
+
+// TODO : Macro
+// pub fn swap(a: &mut [f32; N * N], b: &mut [f32; N * N]) {
+//     let tmp = a;
+//     a = b;
+//     b = tmp;
+// }
