@@ -33,11 +33,6 @@ pub fn model(app: &App) -> Model {
         mouse_dy: 0.0,
     };
 
-    // TODO :
-    model.vel_x[N + 1] = 1.0;
-    model.vel_y[N + 1] = 1.0;
-    model.density[N + 1] = 1.0;
-
     model
 }
 
@@ -45,6 +40,7 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
     use WindowEvent::*;
 
     match e {
+        KeyPressed(key) => if key == Key::R { reset(model); },
         MousePressed(_pos) => model.mouse_pressed = true,
         MouseReleased(_pos) => model.mouse_pressed = false,
         MouseMoved(pos) => if model.mouse_pressed { mouse_drag(model, app, pos); },
@@ -138,5 +134,14 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
         model.density[idx] = 1.0;
         model.vel_x[idx] = model.mouse_dx;
         model.vel_y[idx] = model.mouse_dy;
+    }
+}
+
+// Reset density and velocity
+fn reset(model: &mut Model) {
+    for i in 0..N * N {
+        model.density[i] = 0.0;
+        model.vel_x[i] = 0.0;
+        model.vel_y[i] = 0.0;
     }
 }
