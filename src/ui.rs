@@ -7,6 +7,8 @@ use crate::algo::*;
 
 pub struct Model {
     density: [f32; N * N],
+    vel_x: [f32; N * N],
+    vel_y: [f32; N * N],
     mouse_pressed: bool,
 }
 
@@ -16,8 +18,15 @@ pub fn model(app: &App) -> Model {
 
     let mut model = Model {
         density: [0.0; N * N],
+        vel_x: [0.0; N * N],
+        vel_y: [0.0; N * N],
         mouse_pressed: false,
     };
+
+    // TODO :
+    model.vel_x[N + 1] = 1.0;
+    model.vel_y[N + 1] = 1.0;
+    model.density[N + 1] = 1.0;
 
     model
 }
@@ -26,8 +35,8 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
     use WindowEvent::*;
 
     match e {
-        MousePressed(pos) => model.mouse_pressed = true,
-        MouseReleased(pos) => model.mouse_pressed = false,
+        MousePressed(_pos) => model.mouse_pressed = true,
+        MouseReleased(_pos) => model.mouse_pressed = false,
         MouseMoved(pos) => if model.mouse_pressed { mouse_drag(model, app, pos); },
         _ => {},
     }
@@ -36,13 +45,29 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
 pub fn update(_app: &App, model: &mut Model, _: Update) {
     // TODO : Mv in algo
     // TODO : Reserve only
+    let dt = 1.0 / 30.0;
     let mut new_density = [0.0; N * N];
-    let dt = 1.0 / 60.0;
+    let mut new_vel_x = [0.0; N * N];
+    let mut new_vel_y = [0.0; N * N];
 
-    diffuse(&model.density, &mut new_density, DIFFUSION_FACTOR, dt,
-            &BoundMode::Density);
+    // Density update
+    diffuse(&model.density, &mut new_density, DIFFUSION_FACTOR,
+            dt, &BoundMode::Density);
 
-    model.density = new_density;
+    advect(&new_density, &mut model.density,
+            &model.vel_x, &model.vel_y,
+            dt, &BoundMode::Density);
+
+    // Velocity update
+    // diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
+    //         dt, &BoundMode::VelX);
+
+    // diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
+    //         dt, &BoundMode::VelY);
+
+    // model.density = new_density;
+    model.vel_x = new_vel_x;
+    model.vel_y = new_vel_y;
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
