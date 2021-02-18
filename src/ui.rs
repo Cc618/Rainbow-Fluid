@@ -57,8 +57,8 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
 
     // Update mouse
     let mouse_pos = app.mouse.position();
-    model.mouse_dx = (mouse_pos.x - model.last_mouse_x) * dt * MOUSE_SENSIVITY;
-    model.mouse_dy = (mouse_pos.y - model.last_mouse_y) * dt * MOUSE_SENSIVITY;
+    model.mouse_dx = (mouse_pos.x - model.last_mouse_x) * MOUSE_SENSIVITY;
+    model.mouse_dy = (mouse_pos.y - model.last_mouse_y) * MOUSE_SENSIVITY;
     model.last_mouse_x = mouse_pos.x;
     model.last_mouse_y = mouse_pos.y;
 
@@ -104,6 +104,24 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
                 .color(rgb(d * 0.9, d * 0.8, d))
                 .w_h(w_tile, h_tile)
                 .x_y(w_tile * 0.5 + x_start, h_tile * 0.5 + y_start);
+        }
+    }
+
+    for i in 0..N {
+        for j in 0..N {
+            let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
+            let (x_start, y_start) = (x_start + 0.5 * w_tile, y_start + 0.5 * h_tile);
+
+            let idx = grid2index(i, j);
+            let dx = model.vel_x[idx] / MOUSE_SENSIVITY;
+            let dy = model.vel_y[idx] / MOUSE_SENSIVITY;
+
+            let (x_end, y_end) = (x_start + dx, y_start + dy);
+
+            draw.line()
+                .color(rgb(1.0, 0.1, 0.1))
+                .start(pt2(x_start, y_start))
+                .end(pt2(x_end, y_end));
         }
     }
 

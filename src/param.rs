@@ -9,5 +9,6 @@ pub const RESOLUTION: usize = 20;
 // TODO : Describe
 pub const DIFFUSION_FACTOR: f32 = 2e-3;
 
+// TODO : Max velocity ?
 // How much velocity when we move the mouse
-pub const MOUSE_SENSIVITY: f32 = 1.0;
+pub const MOUSE_SENSIVITY: f32 = 6e-2;
