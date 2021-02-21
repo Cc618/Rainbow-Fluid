@@ -1,7 +1,7 @@
 // Constants
 
 // Grid size
-pub const N: usize = 16;
+pub const N: usize = 64;
 
 // Iterations, the higher, the more accurate the simulation is
 pub const RESOLUTION: usize = 20;

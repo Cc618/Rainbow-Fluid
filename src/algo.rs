@@ -123,23 +123,18 @@ pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
 }
 
 fn set_bounds(x: &mut Vec<f32>, mode: &BoundMode) {
-    // TODO
-    return;
+    for i in 1..N - 1 {
+        // Left / right walls
+        x[grid2index(0, i)]     = if mode == &BoundMode::VelY
+                { -x[grid2index(1, i)] } else { x[grid2index(1, i)] };
+        x[grid2index(N - 1, i)] = if mode == &BoundMode::VelY
+                { -x[grid2index(N - 2, i)] } else { x[grid2index(N - 2, i)] };
 
-    if mode != &BoundMode::Density {
-        for i in 1..N - 1 {
-            x[grid2index(0, i)]     = -x[grid2index(1, i)];
-            x[grid2index(N - 1, i)] = -x[grid2index(N - 2, i)];
-            x[grid2index(i, 0)]     = x[grid2index(i, 1)];
-            x[grid2index(i, N - 1)] = x[grid2index(i, N - 2)];
-
-            if mode == &BoundMode::VelX {
-                x[grid2index(0, i)]     = -x[grid2index(0, i)];
-                x[grid2index(N - 1, i)] = -x[grid2index(N - 1, i)];
-                x[grid2index(i, 0)]     = -x[grid2index(i, 0)];
-                x[grid2index(i, N - 1)] = -x[grid2index(i, N - 1)];
-            }
-        }
+        // Top / bottom walls
+        x[grid2index(i, 0)]     = if mode == &BoundMode::VelX
+                { -x[grid2index(i, 1)] } else { x[grid2index(i, 1)] };
+        x[grid2index(i, N - 1)] = if mode == &BoundMode::VelX
+                { -x[grid2index(i, N - 2)] } else { x[grid2index(i, N - 2)] };
     }
 
     x[grid2index(0, 0)] = 0.5 * (x[grid2index(1, 0)] + x[grid2index(0, 1)]);

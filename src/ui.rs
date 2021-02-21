@@ -97,13 +97,13 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
 
     advect(&model.vel_x, &mut new_vel_x,
             &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
+            dt, &BoundMode::VelX);
 
     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
 
     advect(&model.vel_y, &mut new_vel_y,
             &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
+            dt, &BoundMode::VelY);
 
     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 }
