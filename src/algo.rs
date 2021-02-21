@@ -16,30 +16,21 @@ pub enum BoundMode {
 // Diffuse fluid particules
 pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>, factor: f32,
         dt: f32, mode: &BoundMode) {
-    let delta = dt * factor; // * ((N - 2) * (N - 2)) as f32;
+    let delta = dt * factor * ((N - 2) * (N - 2)) as f32;
 
-    // for _ in 0..RESOLUTION {
-        // TODO : Swap x_init and x ?
-        for i in 1..N - 1 {
-            for j in 1..N - 1 {
-                // TODO : Verify
-                let neighbors = x_init[grid2index(i - 1, j)] +
-                        x_init[grid2index(i + 1, j)] +
-                        x_init[grid2index(i, j + 1)] +
-                        x_init[grid2index(i, j - 1)];
-                // let neighbors = x_init[grid2index(i - 1, j)] +
-                //         x_init[grid2index(i + 1, j)] +
-                //         x_init[grid2index(i, j + 1)] +
-                //         x_init[grid2index(i, j - 1)];
+    for i in 1..N - 1 {
+        for j in 1..N - 1 {
+            let neighbors = x_init[grid2index(i - 1, j)] +
+                    x_init[grid2index(i + 1, j)] +
+                    x_init[grid2index(i, j + 1)] +
+                    x_init[grid2index(i, j - 1)];
 
-                x[grid2index(i, j)] = x_init[grid2index(i, j)] + delta * neighbors;
-                x[grid2index(i, j)] /= 1.0 + 4.0 * delta;
-                // x[grid2index(i, j)] = x_init[grid2index(i, j)] + x_init[grid2index(i, j + 1)];
-            }
+            x[grid2index(i, j)] = x_init[grid2index(i, j)] + delta * neighbors;
+            x[grid2index(i, j)] /= 1.0 + 4.0 * delta;
         }
+    }
 
-        set_bounds(x, mode);
-    // }
+    set_bounds(x, mode);
 }
 
 // Move particles
@@ -67,14 +58,14 @@ pub fn advect(dens_init: &Vec<f32>, dens: &mut Vec<f32>,
             let t_end = x - j_start as f32;
             let t_start = 1.0 - t_end as f32;
 
-            // TODO : Explain
+            // Lerp
             dens[grid2index(i, j)] =
-                    t_start * (
-                        s_start * dens_init[grid2index(i_start, j_start)] +
-                        s_end * dens_init[grid2index(i_start, j_end)]) +
-                    t_end * (
-                        s_start * dens_init[grid2index(i_end, j_start)] +
-                        s_end * dens_init[grid2index(i_end, j_end)]);
+                    s_start * (
+                        t_start * dens_init[grid2index(i_start, j_start)] +
+                        t_end * dens_init[grid2index(i_start, j_end)]) +
+                    s_end * (
+                        t_start * dens_init[grid2index(i_end, j_start)] +
+                        t_end * dens_init[grid2index(i_end, j_end)]);
         }
     }
 

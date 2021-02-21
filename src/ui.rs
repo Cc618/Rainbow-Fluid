@@ -57,7 +57,7 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     let dt = 1.0 / 30.0;
 
     // TODO
-    model.density[grid2index(N / 2, N / 2)] = 1.0;
+    // model.density[grid2index(N / 2, N / 2)] = 1.0;
 
     // Update mouse
     let mouse_pos = app.mouse.position();
@@ -78,86 +78,39 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
 
     std::mem::swap(&mut model.density, &mut new_density);
 
-    // advect(&model.density, &mut new_density,
-    //         &model.vel_x, &model.vel_y,
-    //         dt, &BoundMode::Density);
+    advect(&model.density, &mut new_density,
+            &model.vel_x, &model.vel_y,
+            dt, &BoundMode::Density);
 
-    // std::mem::swap(&mut model.density, &mut new_density);
+    std::mem::swap(&mut model.density, &mut new_density);
 
-    // // Velocity update
-    // diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
-    //         dt, &BoundMode::VelX);
+    // Velocity update
+    diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
+            dt, &BoundMode::VelX);
 
-    // std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
 
-    // diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
-    //         dt, &BoundMode::VelY);
+    diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
+            dt, &BoundMode::VelY);
 
-    // std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
+    advect(&model.vel_x, &mut new_vel_x,
+            &model.vel_x, &model.vel_y,
+            dt, &BoundMode::Density);
 
+    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
 
+    advect(&model.vel_y, &mut new_vel_y,
+            &model.vel_x, &model.vel_y,
+            dt, &BoundMode::Density);
 
-
-
-//     // TODO : Verify vel x and y not inversed
-//     project(&mut model.vel_x, &mut model.vel_y,
-//             &mut new_vel_x, &mut new_vel_y);
-
-//     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-//     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
-
-//     // TODO : Not the same in the parper
-//     advect(&model.vel_x, &mut new_vel_x,
-//             &model.vel_x, &model.vel_y,
-//             dt, &BoundMode::Density);
-
-//     advect(&model.vel_y, &mut new_vel_y,
-//             &model.vel_x, &model.vel_y,
-//             dt, &BoundMode::Density);
-
-//     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-//     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
-
-
-
-
-
-
-
-//     // let (mut new_vel_x, mut new_vel_x_2) = (new_vel_x_2, new_vel_x);
-//     // let (mut new_vel_y, mut new_vel_y_2) = (new_vel_y_2, new_vel_y);
-//     std::mem::swap(new_vel_x, new_vel_x_2);
-//     std::mem::swap(new_vel_y, new_vel_y_2);
-
-//     project(&mut new_vel_x, &mut new_vel_y,
-//             &mut new_vel_x_2, &mut new_vel_y_2);
-
-//     // let (mut new_vel_x, mut new_vel_x_2) = (new_vel_x_2, new_vel_x);
-//     // let (mut new_vel_y, mut new_vel_y_2) = (new_vel_y_2, new_vel_y);
-//     std::mem::swap(new_vel_x, new_vel_x_2);
-//     std::mem::swap(new_vel_y, new_vel_y_2);
-
-//     // TODO : Not y for 3rd arg ?
-//     advect(&new_vel_x, &mut new_vel_x_2,
-//             &new_vel_x_2, &new_vel_y_2,
-//             dt, &BoundMode::VelX);
-
-//     advect(&new_vel_y, &mut new_vel_y_2,
-//             &new_vel_x_2, &new_vel_y_2,
-//             dt, &BoundMode::VelY);
-
-//     project(&mut new_vel_x, &mut new_vel_y,
-//             &mut new_vel_x, &mut new_vel_y_2);
-
-
-//     // TODO : Use refs ?
-//     // model.density = new_density;
-//     model.vel_x = *new_vel_x;
-//     model.vel_y = *new_vel_y;
+    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
+    let draw_vel = false;
+
     let draw = app.draw();
     let (w_tile, h_tile) = tile_size(app);
 
@@ -178,21 +131,23 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     }
 
     // Arrows
-    for i in 0..N {
-        for j in 0..N {
-            let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
-            let (x_start, y_start) = (x_start + 0.5 * w_tile, y_start + 0.5 * h_tile);
+    if draw_vel {
+        for i in 0..N {
+            for j in 0..N {
+                let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
+                let (x_start, y_start) = (x_start + 0.5 * w_tile, y_start + 0.5 * h_tile);
 
-            let idx = grid2index(i, j);
-            let dx = model.vel_x[idx] / MOUSE_SENSIVITY;
-            let dy = model.vel_y[idx] / MOUSE_SENSIVITY;
+                let idx = grid2index(i, j);
+                let dx = model.vel_x[idx] / MOUSE_SENSIVITY;
+                let dy = model.vel_y[idx] / MOUSE_SENSIVITY;
 
-            let (x_end, y_end) = (x_start + dx * w_tile, y_start + dy * h_tile);
+                let (x_end, y_end) = (x_start + dx * w_tile, y_start + dy * h_tile);
 
-            draw.line()
-                .color(rgb(1.0, 0.1, 0.1))
-                .start(pt2(x_start, y_start))
-                .end(pt2(x_end, y_end));
+                draw.line()
+                    .color(rgb(1.0, 0.1, 0.1))
+                    .start(pt2(x_start, y_start))
+                    .end(pt2(x_end, y_end));
+            }
         }
     }
 
