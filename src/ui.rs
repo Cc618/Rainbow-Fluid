@@ -22,7 +22,7 @@ pub fn model(app: &App) -> Model {
     // Create a window that can receive user input like mouse and keyboard events.
     app.new_window().event(event).view(view).build().unwrap();
 
-    let mut model = Model {
+    let model = Model {
         density: vec![0.0; N * N],
         vel_x: vec![0.0; N * N],
         vel_y: vec![0.0; N * N],
@@ -66,7 +66,6 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     model.last_mouse_x = mouse_pos.x;
     model.last_mouse_y = mouse_pos.y;
 
-
     // TODO : Mv in algo
     // TODO : Reserve only / copy ?
     let mut new_density = vec![0.0; N * N];
@@ -79,41 +78,46 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
 
     std::mem::swap(&mut model.density, &mut new_density);
 
-    advect(&model.density, &mut new_density,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
+    // advect(&model.density, &mut new_density,
+    //         &model.vel_x, &model.vel_y,
+    //         dt, &BoundMode::Density);
 
-    std::mem::swap(&mut model.density, &mut new_density);
+    // std::mem::swap(&mut model.density, &mut new_density);
 
-    // Velocity update
-    diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
-            dt, &BoundMode::VelX);
+    // // Velocity update
+    // diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
+    //         dt, &BoundMode::VelX);
 
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+    // std::mem::swap(&mut model.vel_x, &mut new_vel_x);
 
-    diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
-            dt, &BoundMode::VelY);
+    // diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
+    //         dt, &BoundMode::VelY);
 
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+    // std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
-    // TODO : Verify vel x and y not inversed
-    project(&mut model.vel_x, &mut model.vel_y,
-            &mut new_vel_x, &mut new_vel_y);
 
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
-    // TODO : Not the same in the parper
-    advect(&model.vel_x, &mut new_vel_x,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
 
-    advect(&model.vel_y, &mut new_vel_y,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
 
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+
+//     // TODO : Verify vel x and y not inversed
+//     project(&mut model.vel_x, &mut model.vel_y,
+//             &mut new_vel_x, &mut new_vel_y);
+
+//     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+//     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+
+//     // TODO : Not the same in the parper
+//     advect(&model.vel_x, &mut new_vel_x,
+//             &model.vel_x, &model.vel_y,
+//             dt, &BoundMode::Density);
+
+//     advect(&model.vel_y, &mut new_vel_y,
+//             &model.vel_x, &model.vel_y,
+//             dt, &BoundMode::Density);
+
+//     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+//     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
 
 
