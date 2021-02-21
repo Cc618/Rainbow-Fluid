@@ -123,8 +123,11 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
             let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
             let d = model.density[grid2index(i, j)].clamp(0.0, 1.0);
 
+            let color = if d < 0.5 { rgb(2.0 * d, 1.5 * d, 0.0) }
+                    else { rgb(1.0, 0.75 + 0.25 * d,  d) };
+
             draw.rect()
-                .color(rgb(d * 0.9, d * 0.8, d))
+                .color(color)
                 .w_h(w_tile, h_tile)
                 .x_y(w_tile * 0.5 + x_start, h_tile * 0.5 + y_start);
         }
@@ -162,7 +165,7 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
     if i < N && j < N {
         let idx = grid2index(i, j);
 
-        model.density[idx] = 1.0;
+        model.density[idx] = MOUSE_DENSITY;
 
         if model.mouse_dx != 0.0 || model.mouse_dy != 0.0 {
             // Normalize
