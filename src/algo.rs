@@ -45,8 +45,8 @@ pub fn advect(dens_init: &Vec<f32>, dens: &mut Vec<f32>,
             let x = j as f32 - delta * vel_x[grid2index(i, j)];
             let y = i as f32 - delta * vel_y[grid2index(i, j)];
 
-            let x = x.clamp(0.5, N as f32 - 0.5);
-            let y = y.clamp(0.5, N as f32 - 0.5);
+            let x = x.clamp(0.5, N as f32 - 1.5);
+            let y = y.clamp(0.5, N as f32 - 1.5);
 
             let i_start = y as usize;
             let j_start = x as usize;
