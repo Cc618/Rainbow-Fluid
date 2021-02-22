@@ -13,13 +13,14 @@ pub struct Model {
     src_vel_x: Vec<f32>,
     src_vel_y: Vec<f32>,
 
-    // Mouse
+    // UI
     mouse_pressed: bool,
     last_mouse_x: f32,
     last_mouse_y: f32,
     mouse_dx: f32,
     mouse_dy: f32,
     drag_mode: bool,
+    mode: usize,
 }
 
 pub fn model(app: &App) -> Model {
@@ -33,6 +34,7 @@ pub fn model(app: &App) -> Model {
         src_density: vec![0.0; N * N],
         src_vel_x: vec![0.0; N * N],
         src_vel_y: vec![0.0; N * N],
+
         // UI
         mouse_pressed: false,
         last_mouse_x: 0.0,
@@ -40,6 +42,7 @@ pub fn model(app: &App) -> Model {
         mouse_dx: 0.0,
         mouse_dy: 0.0,
         drag_mode: false,
+        mode: 0,
     };
 
     model
@@ -121,6 +124,8 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     // Velocity conserve mass
     project(&mut model.vel_x, &mut model.vel_y,
             &mut new_vel_x, &mut new_vel_y);
+
+    update_mode(model);
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
@@ -208,6 +213,8 @@ fn key_press(key: Key, model: &mut Model) {
     match key {
         Key::R => reset(model),
         Key::Space => model.drag_mode = !model.drag_mode,
+        Key::Left => model.mode = (model.mode + N_MODES - 1) % N_MODES,
+        Key::Right => model.mode = (model.mode + 1) % N_MODES,
         _ => {}
     }
 }
@@ -221,5 +228,23 @@ fn reset(model: &mut Model) {
         model.src_density[i] = 0.0;
         model.src_vel_x[i] = 0.0;
         model.src_vel_y[i] = 0.0;
+    }
+}
+
+fn update_mode(model: &mut Model) {
+    const TILE_ON_DENSITY: f32 = 5e1;
+    const TILE_ON_UPFORCE: f32 = 1e0;
+    const TILE_ON_WIND: f32 = 2e-1;
+    let _dt = 1.0 / FPS;
+
+    // Fire
+    if model.mode == 1 {
+        let idx = grid2index(N / 2, N / 2);
+        model.src_density[idx] = TILE_ON_DENSITY;
+
+        for i in 0..N * N {
+            model.src_vel_y[i] = TILE_ON_UPFORCE;
+            model.src_vel_x[i] = TILE_ON_WIND;
+        }
     }
 }

@@ -13,8 +13,13 @@ pub const FPS: f32 = 30.0;
 pub const RESOLUTION: usize = 20;
 
 // How much the fluid expands
-pub const DIFFUSION_FACTOR: f32 = 2e-3;
+pub const DIFFUSION_FACTOR: f32 = 4e-3;
 
 // How much velocity / density when we move the mouse
 pub const MOUSE_SENSIVITY: f32 = 16e0;
 pub const MOUSE_DENSITY: f32 = 42e1;
+
+// 0 = No mode
+// 1 = Fire mode
+// 2 = Falls mode
+pub const N_MODES: usize = 3;
