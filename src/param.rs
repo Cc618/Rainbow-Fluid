@@ -3,6 +3,9 @@
 // Grid size
 pub const N: usize = 64;
 
+// Brush radius size for user interaction
+pub const BRUSH_N: i32 = 2;
+
 // Frame rate of the application (used to compute the delta time)
 pub const FPS: f32 = 30.0;
 

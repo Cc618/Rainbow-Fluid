@@ -177,20 +177,30 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
     let dt = 1.0 / FPS;
     let (i, j) = screen2grid(pos.x, pos.y, app);
+    let brush_factor = 1.0 / (BRUSH_N * BRUSH_N) as f32;
 
-    if i < N && j < N {
-        let idx = grid2index(i, j);
+    for w in -BRUSH_N..BRUSH_N + 1 {
+        for h in -BRUSH_N..BRUSH_N + 1 {
+            let brush_i = i as i32 + h;
+            let brush_j = j as i32 + w;
 
-        // TODO : Brush size
+            // Negative / positive overflow
+            if brush_i < 0 || brush_j < 0 ||
+                    brush_i >= N as i32 || brush_j >= N as i32 {
+                continue;
+            }
 
-        if !model.drag_mode {
-            let speed = (model.mouse_dx * model.mouse_dx +
-                         model.mouse_dy * model.mouse_dy).sqrt() / (N as f32 * 1.41);
-            model.src_density[idx] += dt * speed * MOUSE_DENSITY;
+            let idx = grid2index(brush_i as usize, brush_j as usize);
+
+            if !model.drag_mode {
+                let speed = (model.mouse_dx * model.mouse_dx +
+                            model.mouse_dy * model.mouse_dy).sqrt() / (N as f32 * 1.41);
+                model.src_density[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
+            }
+
+            model.src_vel_x[idx] += model.mouse_dx * dt * brush_factor * MOUSE_SENSIVITY;
+            model.src_vel_y[idx] += model.mouse_dy * dt * brush_factor * MOUSE_SENSIVITY;
         }
-
-        model.src_vel_x[idx] += model.mouse_dx * dt * MOUSE_SENSIVITY;
-        model.src_vel_y[idx] += model.mouse_dy * dt * MOUSE_SENSIVITY;
     }
 }
 
