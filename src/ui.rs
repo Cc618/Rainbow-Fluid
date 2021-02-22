@@ -16,6 +16,7 @@ pub struct Model {
     last_mouse_y: f32,
     mouse_dx: f32,
     mouse_dy: f32,
+    drag_mode: bool,
 }
 
 pub fn model(app: &App) -> Model {
@@ -31,6 +32,7 @@ pub fn model(app: &App) -> Model {
         last_mouse_y: 0.0,
         mouse_dx: 0.0,
         mouse_dy: 0.0,
+        drag_mode: false,
     };
 
     model
@@ -40,7 +42,7 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
     use WindowEvent::*;
 
     match e {
-        KeyPressed(key) => if key == Key::R { reset(model); },
+        KeyPressed(key) => key_press(key, model),
         MousePressed(_pos) => model.mouse_pressed = true,
         MouseReleased(_pos) => model.mouse_pressed = false,
         MouseMoved(pos) => if model.mouse_pressed { mouse_drag(model, app, pos); },
@@ -48,16 +50,8 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
     }
 }
 
-// TODO : rm
-// fn log_type<T>(_: &T) {
-//     println!("Type : {}", std::any::type_name::<T>())
-// }
-
 pub fn update(app: &App, model: &mut Model, _: Update) {
     let dt = 1.0 / 30.0;
-
-    // TODO
-    // model.density[grid2index(N / 2, N / 2)] = 1.0;
 
     // Update mouse
     let mouse_pos = app.mouse.position();
@@ -72,39 +66,53 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     let mut new_vel_x = vec![0.0; N * N];
     let mut new_vel_y = vec![0.0; N * N];
 
-    // Density update
+    // Density diffuse
     diffuse(&model.density, &mut new_density, DIFFUSION_FACTOR,
             dt, &BoundMode::Density);
 
     std::mem::swap(&mut model.density, &mut new_density);
 
+    // Density advect
     advect(&model.density, &mut new_density,
             &model.vel_x, &model.vel_y,
             dt, &BoundMode::Density);
 
     std::mem::swap(&mut model.density, &mut new_density);
 
-    // Velocity update
+    // Velocity diffuse
     diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
             dt, &BoundMode::VelX);
-
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
 
     diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
             dt, &BoundMode::VelY);
 
+    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
-    advect(&model.vel_x, &mut new_vel_x,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::VelX);
+    // Velocity conserve mass
+    project(&mut model.vel_x, &mut model.vel_y,
+            &mut new_vel_x, &mut new_vel_y);
 
     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+
+    // Velocity advect
+    advect(&model.vel_x, &mut new_vel_x,
+            &model.vel_x, &model.vel_y,
+            dt, &BoundMode::VelY);
 
     advect(&model.vel_y, &mut new_vel_y,
             &model.vel_x, &model.vel_y,
             dt, &BoundMode::VelY);
 
+    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
+    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
+
+    // Velocity conserve mass
+    project(&mut model.vel_x, &mut model.vel_y,
+            &mut new_vel_x, &mut new_vel_y);
+
+    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
     std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 }
 
@@ -165,7 +173,9 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
     if i < N && j < N {
         let idx = grid2index(i, j);
 
-        model.density[idx] = MOUSE_DENSITY;
+        if !model.drag_mode {
+            model.density[idx] = MOUSE_DENSITY;
+        }
 
         if model.mouse_dx != 0.0 || model.mouse_dy != 0.0 {
             // Normalize
@@ -175,6 +185,14 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
             model.vel_x[idx] = model.mouse_dx / norm * MOUSE_SENSIVITY;
             model.vel_y[idx] = model.mouse_dy / norm * MOUSE_SENSIVITY;
         }
+    }
+}
+
+fn key_press(key: Key, model: &mut Model) {
+    match key {
+        Key::R => reset(model),
+        Key::Space => model.drag_mode = !model.drag_mode,
+        _ => {}
     }
 }
 
