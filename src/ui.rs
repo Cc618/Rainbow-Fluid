@@ -20,7 +20,6 @@ pub struct Model {
 }
 
 pub fn model(app: &App) -> Model {
-    // Create a window that can receive user input like mouse and keyboard events.
     app.new_window().event(event).view(view).build().unwrap();
 
     let model = Model {
@@ -51,7 +50,7 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
 }
 
 pub fn update(app: &App, model: &mut Model, _: Update) {
-    let dt = 1.0 / 30.0;
+    let dt = 1.0 / FPS;
 
     // Update mouse
     let mouse_pos = app.mouse.position();
@@ -67,8 +66,7 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     let mut new_vel_y = vec![0.0; N * N];
 
     // Density diffuse
-    diffuse(&model.density, &mut new_density, DIFFUSION_FACTOR,
-            dt, &BoundMode::Density);
+    diffuse(&model.density, &mut new_density, dt, &BoundMode::Density);
 
     std::mem::swap(&mut model.density, &mut new_density);
 
@@ -80,10 +78,10 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     std::mem::swap(&mut model.density, &mut new_density);
 
     // Velocity diffuse
-    diffuse(&model.vel_x, &mut new_vel_x, DIFFUSION_FACTOR,
+    diffuse(&model.vel_x, &mut new_vel_x,
             dt, &BoundMode::VelX);
 
-    diffuse(&model.vel_y, &mut new_vel_y, DIFFUSION_FACTOR,
+    diffuse(&model.vel_y, &mut new_vel_y,
             dt, &BoundMode::VelY);
 
     std::mem::swap(&mut model.vel_x, &mut new_vel_x);
@@ -92,9 +90,6 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     // Velocity conserve mass
     project(&mut model.vel_x, &mut model.vel_y,
             &mut new_vel_x, &mut new_vel_y);
-
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 
     // Velocity advect
     advect(&model.vel_x, &mut new_vel_x,
@@ -111,9 +106,6 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     // Velocity conserve mass
     project(&mut model.vel_x, &mut model.vel_y,
             &mut new_vel_x, &mut new_vel_y);
-
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {

@@ -14,23 +14,24 @@ pub enum BoundMode {
 
 // TODO : Special args for velocity (b)
 // Diffuse fluid particules
-pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>, factor: f32,
+pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>,
         dt: f32, mode: &BoundMode) {
-    let delta = dt * factor * ((N - 2) * (N - 2)) as f32;
+    let delta = dt * DIFFUSION_FACTOR * ((N - 2) * (N - 2)) as f32;
 
-    for i in 1..N - 1 {
-        for j in 1..N - 1 {
-            let neighbors = x_init[grid2index(i - 1, j)] +
-                    x_init[grid2index(i + 1, j)] +
-                    x_init[grid2index(i, j + 1)] +
-                    x_init[grid2index(i, j - 1)];
+    for _ in 0..RESOLUTION {
+        for i in 1..N - 1 {
+            for j in 1..N - 1 {
+                let neighbors = x_init[grid2index(i - 1, j)] +
+                        x_init[grid2index(i + 1, j)] +
+                        x_init[grid2index(i, j + 1)] +
+                        x_init[grid2index(i, j - 1)];
 
-            x[grid2index(i, j)] = x_init[grid2index(i, j)] + delta * neighbors;
-            x[grid2index(i, j)] /= 1.0 + 4.0 * delta;
+                x[grid2index(i, j)] = x_init[grid2index(i, j)] + delta * neighbors;
+                x[grid2index(i, j)] /= 1.0 + 4.0 * delta;
+            }
         }
+        set_bounds(x, mode);
     }
-
-    set_bounds(x, mode);
 }
 
 // Move particles
