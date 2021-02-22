@@ -12,6 +12,14 @@ pub enum BoundMode {
 
 // TODO : Clip, set bounds, sum forces = const
 
+// Applies src to x
+pub fn apply_source(x: &mut Vec<f32>, src: &mut Vec<f32>, dt: f32) {
+    for i in 0..N * N {
+        x[i] += dt * src[i];
+        src[i] -= dt * src[i];
+    }
+}
+
 // TODO : Special args for velocity (b)
 // Diffuse fluid particules
 pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>,

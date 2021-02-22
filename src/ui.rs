@@ -9,6 +9,9 @@ pub struct Model {
     density: Vec<f32>,
     vel_x: Vec<f32>,
     vel_y: Vec<f32>,
+    src_density: Vec<f32>,
+    src_vel_x: Vec<f32>,
+    src_vel_y: Vec<f32>,
 
     // Mouse
     mouse_pressed: bool,
@@ -23,9 +26,14 @@ pub fn model(app: &App) -> Model {
     app.new_window().event(event).view(view).build().unwrap();
 
     let model = Model {
+        // Env
         density: vec![0.0; N * N],
         vel_x: vec![0.0; N * N],
         vel_y: vec![0.0; N * N],
+        src_density: vec![0.0; N * N],
+        src_vel_x: vec![0.0; N * N],
+        src_vel_y: vec![0.0; N * N],
+        // UI
         mouse_pressed: false,
         last_mouse_x: 0.0,
         last_mouse_y: 0.0,
@@ -54,8 +62,8 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
 
     // Update mouse
     let mouse_pos = app.mouse.position();
-    model.mouse_dx = (mouse_pos.x - model.last_mouse_x) * MOUSE_SENSIVITY;
-    model.mouse_dy = (mouse_pos.y - model.last_mouse_y) * MOUSE_SENSIVITY;
+    model.mouse_dx = mouse_pos.x - model.last_mouse_x;
+    model.mouse_dy = mouse_pos.y - model.last_mouse_y;
     model.last_mouse_x = mouse_pos.x;
     model.last_mouse_y = mouse_pos.y;
 
@@ -64,6 +72,9 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     let mut new_density = vec![0.0; N * N];
     let mut new_vel_x = vec![0.0; N * N];
     let mut new_vel_y = vec![0.0; N * N];
+
+    // Apply density
+    apply_source(&mut model.density, &mut model.src_density, dt);
 
     // Density diffuse
     diffuse(&model.density, &mut new_density, dt, &BoundMode::Density);
@@ -76,6 +87,10 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
             dt, &BoundMode::Density);
 
     std::mem::swap(&mut model.density, &mut new_density);
+
+    // Apply velocity
+    apply_source(&mut model.vel_x, &mut model.src_vel_x, dt);
+    apply_source(&mut model.vel_y, &mut model.src_vel_y, dt);
 
     // Velocity diffuse
     diffuse(&model.vel_x, &mut new_vel_x,
@@ -160,23 +175,22 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 // TODO : Add density, update density, add velocity, update velocity
 // When the mouse is pressed and moved
 fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
+    let dt = 1.0 / FPS;
     let (i, j) = screen2grid(pos.x, pos.y, app);
 
     if i < N && j < N {
         let idx = grid2index(i, j);
 
+        // TODO : Brush size
+
         if !model.drag_mode {
-            model.density[idx] = MOUSE_DENSITY;
+            let speed = (model.mouse_dx * model.mouse_dx +
+                         model.mouse_dy * model.mouse_dy).sqrt() / (N as f32 * 1.41);
+            model.src_density[idx] += dt * speed * MOUSE_DENSITY;
         }
 
-        if model.mouse_dx != 0.0 || model.mouse_dy != 0.0 {
-            // Normalize
-            let norm = model.mouse_dx * model.mouse_dx + model.mouse_dy * model.mouse_dy;
-            let norm = norm.sqrt();
-
-            model.vel_x[idx] = model.mouse_dx / norm * MOUSE_SENSIVITY;
-            model.vel_y[idx] = model.mouse_dy / norm * MOUSE_SENSIVITY;
-        }
+        model.src_vel_x[idx] += model.mouse_dx * dt * MOUSE_SENSIVITY;
+        model.src_vel_y[idx] += model.mouse_dy * dt * MOUSE_SENSIVITY;
     }
 }
 
@@ -194,5 +208,8 @@ fn reset(model: &mut Model) {
         model.density[i] = 0.0;
         model.vel_x[i] = 0.0;
         model.vel_y[i] = 0.0;
+        model.src_density[i] = 0.0;
+        model.src_vel_x[i] = 0.0;
+        model.src_vel_y[i] = 0.0;
     }
 }
