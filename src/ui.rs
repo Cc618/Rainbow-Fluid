@@ -234,7 +234,9 @@ fn reset(model: &mut Model) {
 fn update_mode(model: &mut Model) {
     const TILE_ON_DENSITY: f32 = 5e1;
     const TILE_ON_UPFORCE: f32 = 1e0;
+    const TILE_ON_FORCE: f32 = 3e2;
     const TILE_ON_WIND: f32 = 2e-1;
+    const TILE_ON_GRAVITY: f32 = -8e-1;
     let _dt = 1.0 / FPS;
 
     // Fire
@@ -243,8 +245,18 @@ fn update_mode(model: &mut Model) {
         model.src_density[idx] = TILE_ON_DENSITY;
 
         for i in 0..N * N {
-            model.src_vel_y[i] = TILE_ON_UPFORCE;
             model.src_vel_x[i] = TILE_ON_WIND;
+            model.src_vel_y[i] = TILE_ON_UPFORCE;
         }
+    } else if model.mode == 2 {
+        model.src_density[grid2index(N / 2, 4)] = TILE_ON_DENSITY;
+        model.src_density[grid2index(N / 2, N - 1 - 4)] = TILE_ON_DENSITY;
+
+        for i in 0..N * N {
+            model.src_vel_y[i] = TILE_ON_GRAVITY;
+        }
+
+        model.src_vel_x[grid2index(N / 2, 4)] = TILE_ON_FORCE;
+        model.src_vel_x[grid2index(N / 2, N - 1 - 4)] = -TILE_ON_FORCE;
     }
 }
