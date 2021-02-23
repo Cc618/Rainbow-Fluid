@@ -66,7 +66,7 @@ pub fn model(app: &App) -> Model {
         drag_mode: false,
         mode: 0,
         brush_r: 0.9,
-        brush_g: 0.8,
+        brush_g: 0.7,
         brush_b: 0.1,
     };
 
@@ -88,6 +88,7 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
         MousePressed(_pos) => model.mouse_pressed = true,
         MouseReleased(_pos) => model.mouse_pressed = false,
         MouseMoved(pos) => if model.mouse_pressed { mouse_drag(model, app, pos); },
+
         _ => {},
     }
 }
@@ -274,6 +275,7 @@ fn update_mode(model: &mut Model) {
 
 fn change_brush_color(model: &mut Model) {
     let tmp = model.brush_r;
+
     model.brush_r = model.brush_g;
     model.brush_g = model.brush_b;
     model.brush_b = tmp;

@@ -13,7 +13,7 @@ pub const FPS: f32 = 30.0;
 pub const RESOLUTION: usize = 20;
 
 // How much the fluid expands
-pub const DIFFUSION_FACTOR: f32 = 4e-3;
+pub const DIFFUSION_FACTOR: f32 = 3e-3;
 
 // How much velocity / density when we move the mouse
 pub const MOUSE_SENSIVITY: f32 = 16e0;
@@ -26,4 +26,4 @@ pub const N_MODES: usize = 3;
 
 // 0 = Additive
 // 1 = Subtractive
-pub const COLOR_MODE: usize = 0;
+pub const COLOR_MODE: usize = 1;
