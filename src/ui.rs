@@ -34,6 +34,7 @@ pub struct Model {
     brush_r: f32,
     brush_g: f32,
     brush_b: f32,
+    frame_id: usize,
 }
 
 pub fn model(app: &App) -> Model {
@@ -68,6 +69,7 @@ pub fn model(app: &App) -> Model {
         brush_r: 0.9,
         brush_g: 0.7,
         brush_b: 0.1,
+        frame_id: 0,
     };
 
     // Subtractive color mode
@@ -94,6 +96,8 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
 }
 
 pub fn update(app: &App, model: &mut Model, _: Update) {
+    model.frame_id += 1;
+
     // Update mouse
     let mouse_pos = app.mouse.position();
     model.mouse_dx = mouse_pos.x - model.last_mouse_x;
@@ -173,6 +177,8 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     }
 
     draw.to_frame(app, &frame).unwrap();
+
+    app.main_window().capture_frame(format!("render/frame{:05}.png", model.frame_id));
 }
 
 // When the mouse is pressed and moved

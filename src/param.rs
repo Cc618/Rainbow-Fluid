@@ -1,22 +1,22 @@
 // Constants
 
 // Grid size
-pub const N: usize = 64;
+pub const N: usize = 128;
 
 // Brush radius size for user interaction
-pub const BRUSH_N: i32 = 2;
+pub const BRUSH_N: i32 = 4;
 
 // Frame rate of the application (used to compute the delta time)
-pub const FPS: f32 = 30.0;
+pub const FPS: f32 = 20.0;
 
 // Iterations, the higher, the more accurate the simulation is
-pub const RESOLUTION: usize = 20;
+pub const RESOLUTION: usize = 40;
 
 // How much the fluid expands
-pub const DIFFUSION_FACTOR: f32 = 3e-3;
+pub const DIFFUSION_FACTOR: f32 = 9e-3;
 
 // How much velocity / density when we move the mouse
-pub const MOUSE_SENSIVITY: f32 = 16e0;
+pub const MOUSE_SENSIVITY: f32 = 6e0;
 pub const MOUSE_DENSITY: f32 = 42e1;
 
 // 0 = No mode
@@ -26,4 +26,4 @@ pub const N_MODES: usize = 3;
 
 // 0 = Additive
 // 1 = Subtractive
-pub const COLOR_MODE: usize = 1;
+pub const COLOR_MODE: usize = 0;
