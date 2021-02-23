@@ -114,13 +114,22 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     for i in 0..N {
         for j in 0..N {
             let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
-            let r = model.r[grid2index(i, j)].clamp(0.0, 1.0);
-            let g = model.g[grid2index(i, j)].clamp(0.0, 1.0);
-            let b = model.b[grid2index(i, j)].clamp(0.0, 1.0);
 
-            // TODO : Lerp
-            // let color = if d < 0.5 { rgb(2.0 * d, 1.5 * d, 0.0) }
-            //         else { rgb(1.0, 0.75 + 0.25 * d,  d) };
+            // The color is white if the density is very high for all values
+            let colormap = |c: f32| {
+                const RAMP: f32 = 0.1;
+
+                if c > 0.8 {
+                    (0.8 + (c - 0.8) * RAMP).min(1.0)
+                } else {
+                    c.max(0.0)
+                }
+            };
+
+            let r = colormap(model.r[grid2index(i, j)]);
+            let g = colormap(model.g[grid2index(i, j)]);
+            let b = colormap(model.b[grid2index(i, j)]);
+
             let color = rgb(r, g, b);
 
             draw.rect()
