@@ -4,7 +4,7 @@
 pub const N: usize = 128;
 
 // Brush radius size for user interaction
-pub const BRUSH_N: i32 = 4;
+pub const BRUSH_N: i32 = 6;
 
 // Frame rate of the application (used to compute the delta time)
 pub const FPS: f32 = 20.0;
@@ -26,7 +26,7 @@ pub const N_MODES: usize = 3;
 
 // 0 = Additive
 // 1 = Subtractive
-pub const COLOR_MODE: usize = 0;
+pub const COLOR_MODE: usize = 1;
 
 // Whether we render images in render/
 pub const SAVE_RENDER: bool = true;
