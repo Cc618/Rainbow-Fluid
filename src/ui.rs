@@ -6,13 +6,20 @@ use crate::algo::*;
 
 pub struct Model {
     // Env
-    pub density: Vec<f32>,
+    // (r, g, b) = densities
+    pub r: Vec<f32>,
+    pub g: Vec<f32>,
+    pub b: Vec<f32>,
     pub vel_x: Vec<f32>,
     pub vel_y: Vec<f32>,
-    pub new_density: Vec<f32>,
+    pub new_r: Vec<f32>,
+    pub new_g: Vec<f32>,
+    pub new_b: Vec<f32>,
     pub new_vel_x: Vec<f32>,
     pub new_vel_y: Vec<f32>,
-    pub src_density: Vec<f32>,
+    pub src_r: Vec<f32>,
+    pub src_g: Vec<f32>,
+    pub src_b: Vec<f32>,
     pub src_vel_x: Vec<f32>,
     pub src_vel_y: Vec<f32>,
 
@@ -31,13 +38,19 @@ pub fn model(app: &App) -> Model {
 
     let model = Model {
         // Env
-        density: vec![0.0; N * N],
+        r: vec![0.0; N * N],
+        g: vec![0.0; N * N],
+        b: vec![0.0; N * N],
         vel_x: vec![0.0; N * N],
         vel_y: vec![0.0; N * N],
-        new_density: vec![0.0; N * N],
+        new_r: vec![0.0; N * N],
+        new_g: vec![0.0; N * N],
+        new_b: vec![0.0; N * N],
         new_vel_x: vec![0.0; N * N],
         new_vel_y: vec![0.0; N * N],
-        src_density: vec![0.0; N * N],
+        src_r: vec![0.0; N * N],
+        src_g: vec![0.0; N * N],
+        src_b: vec![0.0; N * N],
         src_vel_x: vec![0.0; N * N],
         src_vel_y: vec![0.0; N * N],
 
@@ -95,10 +108,14 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     for i in 0..N {
         for j in 0..N {
             let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
-            let d = model.density[grid2index(i, j)].clamp(0.0, 1.0);
+            let r = model.r[grid2index(i, j)].clamp(0.0, 1.0);
+            let g = model.r[grid2index(i, j)].clamp(0.0, 1.0);
+            let b = model.r[grid2index(i, j)].clamp(0.0, 1.0);
 
-            let color = if d < 0.5 { rgb(2.0 * d, 1.5 * d, 0.0) }
-                    else { rgb(1.0, 0.75 + 0.25 * d,  d) };
+            // TODO : Lerp
+            // let color = if d < 0.5 { rgb(2.0 * d, 1.5 * d, 0.0) }
+            //         else { rgb(1.0, 0.75 + 0.25 * d,  d) };
+            let color = rgb(r, g, b);
 
             draw.rect()
                 .color(color)
@@ -131,7 +148,6 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
-// TODO : Add density, update density, add velocity, update velocity
 // When the mouse is pressed and moved
 fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
     let dt = 1.0 / FPS;
@@ -154,7 +170,10 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
             if !model.drag_mode {
                 let speed = (model.mouse_dx * model.mouse_dx +
                             model.mouse_dy * model.mouse_dy).sqrt() / (N as f32 * 1.41);
-                model.src_density[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
+                // TODO : Brush color
+                model.src_r[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
+                model.src_g[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
+                model.src_b[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
             }
 
             model.src_vel_x[idx] += model.mouse_dx * dt * brush_factor * MOUSE_SENSIVITY;
@@ -176,10 +195,14 @@ fn key_press(key: Key, model: &mut Model) {
 // Reset density and velocity
 fn reset(model: &mut Model) {
     for i in 0..N * N {
-        model.density[i] = 0.0;
+        model.r[i] = 0.0;
+        model.g[i] = 0.0;
+        model.b[i] = 0.0;
         model.vel_x[i] = 0.0;
         model.vel_y[i] = 0.0;
-        model.src_density[i] = 0.0;
+        model.src_r[i] = 0.0;
+        model.src_g[i] = 0.0;
+        model.src_b[i] = 0.0;
         model.src_vel_x[i] = 0.0;
         model.src_vel_y[i] = 0.0;
     }
@@ -196,15 +219,21 @@ fn update_mode(model: &mut Model) {
     // Fire
     if model.mode == 1 {
         let idx = grid2index(N / 2, N / 2);
-        model.src_density[idx] = TILE_ON_DENSITY;
+        model.src_r[idx] = TILE_ON_DENSITY;
+        model.src_g[idx] = TILE_ON_DENSITY;
+        model.src_b[idx] = TILE_ON_DENSITY;
 
         for i in 0..N * N {
             model.src_vel_x[i] = TILE_ON_WIND;
             model.src_vel_y[i] = TILE_ON_UPFORCE;
         }
     } else if model.mode == 2 {
-        model.src_density[grid2index(N / 2, 4)] = TILE_ON_DENSITY;
-        model.src_density[grid2index(N / 2, N - 1 - 4)] = TILE_ON_DENSITY;
+        model.src_r[grid2index(N / 2, 4)] = TILE_ON_DENSITY;
+        model.src_r[grid2index(N / 2, N - 1 - 4)] = TILE_ON_DENSITY;
+        model.src_g[grid2index(N / 2, 4)] = TILE_ON_DENSITY;
+        model.src_g[grid2index(N / 2, N - 1 - 4)] = TILE_ON_DENSITY;
+        model.src_r[grid2index(N / 2, 4)] = TILE_ON_DENSITY;
+        model.src_b[grid2index(N / 2, N - 1 - 4)] = TILE_ON_DENSITY;
 
         for i in 0..N * N {
             model.src_vel_y[i] = TILE_ON_GRAVITY;

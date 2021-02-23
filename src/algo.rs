@@ -14,7 +14,9 @@ pub enum BoundMode {
 // Fluid dynamics step for this model
 pub fn update_env(model: &mut Model, dt: f32) {
     let mut densities = [
-            (&mut model.density, &mut model.new_density, &mut model.src_density)
+            (&mut model.r, &mut model.new_r, &mut model.src_r),
+            (&mut model.g, &mut model.new_g, &mut model.src_g),
+            (&mut model.b, &mut model.new_b, &mut model.src_b),
         ];
 
     // Apply density
