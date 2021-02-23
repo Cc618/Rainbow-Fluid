@@ -27,3 +27,6 @@ pub const N_MODES: usize = 3;
 // 0 = Additive
 // 1 = Subtractive
 pub const COLOR_MODE: usize = 0;
+
+// Whether we render images in render/
+pub const SAVE_RENDER: bool = true;

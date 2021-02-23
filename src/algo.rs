@@ -180,7 +180,6 @@ pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
         for j in 1..N - 1 {
             let idx = grid2index(i, j);
 
-            // TODO : Divide opti
             vel_x[idx] -= 0.5 * (p[grid2index(i, j + 1)] - p[grid2index(i, j - 1)]) / h;
             vel_y[idx] -= 0.5 * (p[grid2index(i + 1, j)] - p[grid2index(i - 1, j)]) / h;
         }

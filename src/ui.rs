@@ -178,7 +178,11 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
     draw.to_frame(app, &frame).unwrap();
 
-    app.main_window().capture_frame(format!("render/frame{:05}.png", model.frame_id));
+    if SAVE_RENDER {
+        // The render directory must exist
+        // Use render.sh to convert all frames to one gif
+        app.main_window().capture_frame(format!("render/frame{:05}.png", model.frame_id));
+    }
 }
 
 // When the mouse is pressed and moved
