@@ -13,20 +13,26 @@ pub enum BoundMode {
 
 // Fluid dynamics step for this model
 pub fn update_env(model: &mut Model, dt: f32) {
+    let mut densities = [
+            (&mut model.density, &mut model.new_density, &mut model.src_density)
+        ];
+
     // Apply density
-    apply_source(&mut model.density, &mut model.src_density, dt);
+    for (density, new_density, src_density) in densities.iter_mut() {
+        apply_source(density, src_density, dt);
 
-    // Density diffuse
-    diffuse(&model.density, &mut model.new_density, dt, &BoundMode::Density);
+        // Density diffuse
+        diffuse(density, new_density, dt, &BoundMode::Density);
 
-    std::mem::swap(&mut model.density, &mut model.new_density);
+        std::mem::swap(density, new_density);
 
-    // Density advect
-    advect(&model.density, &mut model.new_density,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
+        // Density advect
+        advect(density, new_density,
+                &model.vel_x, &model.vel_y,
+                dt, &BoundMode::Density);
 
-    std::mem::swap(&mut model.density, &mut model.new_density);
+        std::mem::swap(density, new_density);
+    }
 
     // Apply velocity
     apply_source(&mut model.vel_x, &mut model.src_vel_x, dt);
@@ -61,7 +67,6 @@ pub fn update_env(model: &mut Model, dt: f32) {
     // Velocity conserve mass
     project(&mut model.vel_x, &mut model.vel_y,
             &mut model.new_vel_x, &mut model.new_vel_y);
-
 }
 
 // Applies src to x
