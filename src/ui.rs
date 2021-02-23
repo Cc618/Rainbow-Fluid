@@ -31,6 +31,9 @@ pub struct Model {
     mouse_dy: f32,
     drag_mode: bool,
     mode: usize,
+    brush_r: f32,
+    brush_g: f32,
+    brush_b: f32,
 }
 
 pub fn model(app: &App) -> Model {
@@ -62,6 +65,9 @@ pub fn model(app: &App) -> Model {
         mouse_dy: 0.0,
         drag_mode: false,
         mode: 0,
+        brush_r: 0.9,
+        brush_g: 0.5,
+        brush_b: 0.1,
     };
 
     model
@@ -109,8 +115,8 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
         for j in 0..N {
             let (x_start, y_start) = grid2screen(i as f32, j as f32, app);
             let r = model.r[grid2index(i, j)].clamp(0.0, 1.0);
-            let g = model.r[grid2index(i, j)].clamp(0.0, 1.0);
-            let b = model.r[grid2index(i, j)].clamp(0.0, 1.0);
+            let g = model.g[grid2index(i, j)].clamp(0.0, 1.0);
+            let b = model.b[grid2index(i, j)].clamp(0.0, 1.0);
 
             // TODO : Lerp
             // let color = if d < 0.5 { rgb(2.0 * d, 1.5 * d, 0.0) }
@@ -170,10 +176,11 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
             if !model.drag_mode {
                 let speed = (model.mouse_dx * model.mouse_dx +
                             model.mouse_dy * model.mouse_dy).sqrt() / (N as f32 * 1.41);
-                // TODO : Brush color
-                model.src_r[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
-                model.src_g[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
-                model.src_b[idx] += dt * brush_factor * speed * MOUSE_DENSITY;
+                let density = dt * brush_factor * speed * MOUSE_DENSITY;
+
+                model.src_r[idx] += model.brush_r * density;
+                model.src_g[idx] += model.brush_g * density;
+                model.src_b[idx] += model.brush_b * density;
             }
 
             model.src_vel_x[idx] += model.mouse_dx * dt * brush_factor * MOUSE_SENSIVITY;
@@ -185,6 +192,7 @@ fn mouse_drag(model: &mut Model, app: &App, pos: Point2<f32>) {
 fn key_press(key: Key, model: &mut Model) {
     match key {
         Key::R => reset(model),
+        Key::B => change_brush_color(model),
         Key::Space => model.drag_mode = !model.drag_mode,
         Key::Left => model.mode = (model.mode + N_MODES - 1) % N_MODES,
         Key::Right => model.mode = (model.mode + 1) % N_MODES,
@@ -242,4 +250,11 @@ fn update_mode(model: &mut Model) {
         model.src_vel_x[grid2index(N / 2, 4)] = TILE_ON_FORCE;
         model.src_vel_x[grid2index(N / 2, N - 1 - 4)] = -TILE_ON_FORCE;
     }
+}
+
+fn change_brush_color(model: &mut Model) {
+    let tmp = model.brush_r;
+    model.brush_r = model.brush_g;
+    model.brush_g = model.brush_b;
+    model.brush_b = tmp;
 }
