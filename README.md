@@ -9,3 +9,4 @@ Here are some examples :
 ![128px Grid, Additive colors](renders/128_add_2.gif)
 ![128px Grid, Subtractive colors](renders/128_sub.gif)
 ![128px Grid, Subtractive colors](renders/128_sub_2.gif)
+![128px Grid, Subtractive colors](renders/128_sub_3.gif)

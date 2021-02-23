@@ -4,4 +4,4 @@
 
 FPS=20
 
-ffmpeg -pattern_type glob -i 'render/*.png' -r $FPS render/render.gif
+ffmpeg -pattern_type glob -i 'render/*.png' -vf "scale=400x400,fps=$FPS" render/render.gif
