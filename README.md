@@ -1,4 +1,4 @@
-# Fluid Simulation
+# Rainbow Fluid Simulation
 Grid based RGB fluid simulation.
 
 ## Features
