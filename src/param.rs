@@ -23,3 +23,7 @@ pub const MOUSE_DENSITY: f32 = 42e1;
 // 1 = Fire mode
 // 2 = Falls mode
 pub const N_MODES: usize = 3;
+
+// 0 = Additive
+// 1 = Subtractive
+pub const COLOR_MODE: usize = 0;

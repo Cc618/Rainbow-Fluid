@@ -39,7 +39,7 @@ pub struct Model {
 pub fn model(app: &App) -> Model {
     app.new_window().event(event).view(view).build().unwrap();
 
-    let model = Model {
+    let mut model = Model {
         // Env
         r: vec![0.0; N * N],
         g: vec![0.0; N * N],
@@ -66,9 +66,16 @@ pub fn model(app: &App) -> Model {
         drag_mode: false,
         mode: 0,
         brush_r: 0.9,
-        brush_g: 0.5,
+        brush_g: 0.8,
         brush_b: 0.1,
     };
+
+    // Subtractive color mode
+    if COLOR_MODE == 1 {
+        model.brush_r = 1.0 - model.brush_r;
+        model.brush_g = 1.0 - model.brush_g;
+        model.brush_b = 1.0 - model.brush_b;
+    }
 
     model
 }
@@ -130,7 +137,11 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
             let g = colormap(model.g[grid2index(i, j)]);
             let b = colormap(model.b[grid2index(i, j)]);
 
-            let color = rgb(r, g, b);
+            let color = if COLOR_MODE == 0 {
+                rgb(r, g, b)
+            } else {
+                rgb(1.0 - r, 1.0 - g, 1.0 - b)
+            };
 
             draw.rect()
                 .color(color)
