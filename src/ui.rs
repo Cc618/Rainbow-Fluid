@@ -6,12 +6,15 @@ use crate::algo::*;
 
 pub struct Model {
     // Env
-    density: Vec<f32>,
-    vel_x: Vec<f32>,
-    vel_y: Vec<f32>,
-    src_density: Vec<f32>,
-    src_vel_x: Vec<f32>,
-    src_vel_y: Vec<f32>,
+    pub density: Vec<f32>,
+    pub vel_x: Vec<f32>,
+    pub vel_y: Vec<f32>,
+    pub new_density: Vec<f32>,
+    pub new_vel_x: Vec<f32>,
+    pub new_vel_y: Vec<f32>,
+    pub src_density: Vec<f32>,
+    pub src_vel_x: Vec<f32>,
+    pub src_vel_y: Vec<f32>,
 
     // UI
     mouse_pressed: bool,
@@ -31,6 +34,9 @@ pub fn model(app: &App) -> Model {
         density: vec![0.0; N * N],
         vel_x: vec![0.0; N * N],
         vel_y: vec![0.0; N * N],
+        new_density: vec![0.0; N * N],
+        new_vel_x: vec![0.0; N * N],
+        new_vel_y: vec![0.0; N * N],
         src_density: vec![0.0; N * N],
         src_vel_x: vec![0.0; N * N],
         src_vel_y: vec![0.0; N * N],
@@ -61,8 +67,6 @@ pub fn event(app: &App, model: &mut Model, e: WindowEvent) {
 }
 
 pub fn update(app: &App, model: &mut Model, _: Update) {
-    let dt = 1.0 / FPS;
-
     // Update mouse
     let mouse_pos = app.mouse.position();
     model.mouse_dx = mouse_pos.x - model.last_mouse_x;
@@ -70,61 +74,11 @@ pub fn update(app: &App, model: &mut Model, _: Update) {
     model.last_mouse_x = mouse_pos.x;
     model.last_mouse_y = mouse_pos.y;
 
-    // TODO : Mv in algo
-    // TODO : Reserve only / copy ?
-    let mut new_density = vec![0.0; N * N];
-    let mut new_vel_x = vec![0.0; N * N];
-    let mut new_vel_y = vec![0.0; N * N];
+    // Update physics
+    let dt = 1.0 / FPS;
+    update_env(model, dt);
 
-    // Apply density
-    apply_source(&mut model.density, &mut model.src_density, dt);
-
-    // Density diffuse
-    diffuse(&model.density, &mut new_density, dt, &BoundMode::Density);
-
-    std::mem::swap(&mut model.density, &mut new_density);
-
-    // Density advect
-    advect(&model.density, &mut new_density,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::Density);
-
-    std::mem::swap(&mut model.density, &mut new_density);
-
-    // Apply velocity
-    apply_source(&mut model.vel_x, &mut model.src_vel_x, dt);
-    apply_source(&mut model.vel_y, &mut model.src_vel_y, dt);
-
-    // Velocity diffuse
-    diffuse(&model.vel_x, &mut new_vel_x,
-            dt, &BoundMode::VelX);
-
-    diffuse(&model.vel_y, &mut new_vel_y,
-            dt, &BoundMode::VelY);
-
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
-
-    // Velocity conserve mass
-    project(&mut model.vel_x, &mut model.vel_y,
-            &mut new_vel_x, &mut new_vel_y);
-
-    // Velocity advect
-    advect(&model.vel_x, &mut new_vel_x,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::VelY);
-
-    advect(&model.vel_y, &mut new_vel_y,
-            &model.vel_x, &model.vel_y,
-            dt, &BoundMode::VelY);
-
-    std::mem::swap(&mut model.vel_x, &mut new_vel_x);
-    std::mem::swap(&mut model.vel_y, &mut new_vel_y);
-
-    // Velocity conserve mass
-    project(&mut model.vel_x, &mut model.vel_y,
-            &mut new_vel_x, &mut new_vel_y);
-
+    // Update example mode
     update_mode(model);
 }
 
