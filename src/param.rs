@@ -1,7 +1,7 @@
 // Constants
 
 // Grid size
-pub const N: usize = 128;
+pub const N: usize = 64;
 
 // Brush radius size for user interaction
 pub const BRUSH_N: i32 = N as i32 / 16;
@@ -29,4 +29,4 @@ pub const N_MODES: usize = 3;
 pub const COLOR_MODE: usize = 1;
 
 // Whether we render images in render/
-pub const SAVE_RENDER: bool = true;
+pub const SAVE_RENDER: bool = false;

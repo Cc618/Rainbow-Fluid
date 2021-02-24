@@ -12,11 +12,16 @@ Since rendering large grids can be expensive, we can save the simulation as a GI
 Here are some examples :
 
 ![128px Grid, Additive colors](renders/128_add.gif)
-![128px Grid, Additive colors](renders/128_add_2.gif)
 ![128px Grid, Subtractive colors](renders/128_sub_2.gif)
 ![128px Grid, Subtractive colors](renders/128_sub_3.gif)
+![128px Grid, Additive colors](renders/128_add_2.gif)
 
-<!-- TODO : Controls -->
+## Controls
+- Mouse Drag : "Paint" the canvas (add density and velocity)
+- R : Reset the canvas
+- B : Change brush color
+- Left / Right : Change experiment mode
+- Space : Toggle density (add only velocity on mouse drag)
 
 ## References
 This implementation of real-time eulerian fluid dynamics is inspired by multiple papers / implementations :
