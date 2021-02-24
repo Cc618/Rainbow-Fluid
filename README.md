@@ -38,7 +38,7 @@ The file [param.rs](src/param.rs) provides customizable parameters :
 - RESOLUTION : Iterations, the higher, the more accurate the simulation is
 
 Most used parameters are N, COLOR_MODE and SAVE_RENDER.
-Note that the script (render.sh)[render.sh] is used to make a gif from recorded frames (requires ffmpeg).
+Note that the script [render.sh](render.sh) is used to make a gif from recorded frames (requires ffmpeg).
 
 ## References
 This implementation of real-time eulerian fluid dynamics is inspired by multiple papers / implementations :
