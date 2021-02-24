@@ -23,6 +23,21 @@ Here are some examples :
 - Left / Right : Change experiment mode
 - Space : Toggle density (add only velocity on mouse drag)
 
+## Tweaking
+The file [params.rs](src/params.rs) provides customizable parameters :
+
+- N : Grid size
+- COLOR_MODE : 0 = Additive, 1 = Subtractive
+- SAVE_RENDER : Whether we render images in render/
+- DIFFUSION_FACTOR : How much the fluid expands
+- MOUSE_SENSIVITY : How much velocity when we move the mouse
+- MOUSE_DENSITY : How much density when we move the mouse
+- BRUSH_N : Brush radius size for user interaction
+- FPS : Frame rate of the application (used to compute the delta time)
+- RESOLUTION : Iterations, the higher, the more accurate the simulation is
+
+Most used parameters are N, COLOR_MODE and SAVE_RENDER.
+
 ## References
 This implementation of real-time eulerian fluid dynamics is inspired by multiple papers / implementations :
 
