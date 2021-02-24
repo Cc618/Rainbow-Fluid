@@ -24,7 +24,7 @@ pub fn screen2grid(x: f32, y: f32, app: &App) -> (usize, usize) {
     )
 }
 
-// TODO : Macro
+#[inline]
 pub fn tile_size(app: &App) -> (f32, f32) {
     let (x_start, y_start) = grid2screen(0.0, 0.0, app);
     let (x_end, y_end) = grid2screen(1.0, 1.0, app);
@@ -32,14 +32,7 @@ pub fn tile_size(app: &App) -> (f32, f32) {
     (abs(x_end - x_start), abs(y_end - y_start))
 }
 
-// TODO : Macro
+#[inline]
 pub fn grid2index(i: usize, j: usize) -> usize {
     i * N + j
 }
-
-// TODO : Macro
-// pub fn swap(a: &mut [f32; N * N], b: &mut [f32; N * N]) {
-//     let tmp = a;
-//     a = b;
-//     b = tmp;
-// }
