@@ -79,7 +79,6 @@ pub fn apply_source(x: &mut Vec<f32>, src: &mut Vec<f32>, dt: f32) {
     }
 }
 
-// TODO : Special args for velocity (b)
 // Diffuse fluid particules
 pub fn diffuse(x_init: &Vec<f32>, x: &mut Vec<f32>,
         dt: f32, mode: &BoundMode) {
@@ -140,8 +139,9 @@ pub fn advect(dens_init: &Vec<f32>, dens: &mut Vec<f32>,
     set_bounds(dens, mode);
 }
 
-// TODO : Rename p and div
 // Conserve mass
+// The fluid is incompressible (<=> grad vel = 0)
+// p and div are temporary grids with the same size as vel_x and vel_y
 pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
         p: &mut Vec<f32>, div: &mut Vec<f32>) {
     let h = 1.0 / (N - 2) as f32;
@@ -150,6 +150,7 @@ pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
         for j in 1..N - 1 {
             let idx = grid2index(i, j);
 
+            // div[idx] = grad vel at i, j
             div[idx] = -0.5 * h * (
                 vel_x[grid2index(i, j + 1)] - vel_x[grid2index(i, j - 1)] +
                 vel_y[grid2index(i + 1, j)] - vel_y[grid2index(i - 1, j)]);
@@ -161,6 +162,7 @@ pub fn project(vel_x: &mut Vec<f32>, vel_y: &mut Vec<f32>,
     set_bounds(div, &BoundMode::Density);
     set_bounds(p, &BoundMode::Density);
 
+    // Optimize such that the gradient is approximately 0
     for _ in 0..RESOLUTION {
         for i in 1..N - 1 {
             for j in 1..N - 1 {
