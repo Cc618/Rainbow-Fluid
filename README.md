@@ -6,6 +6,7 @@ Grid based RGB fluid simulation.
 - Grid-based (eulerian) simulation
 - RGB support, 3 densities are used, one for each fluid
 - Controls to change brushes / reset grid...
+- Improved codebase (variables are more explicit / there are more comments compared to other implementations)
 
 ## Screenshots
 Since rendering large grids can be expensive, we can save the simulation as a GIF image with a constant frame-rate.
@@ -24,7 +25,7 @@ Here are some examples :
 - Space : Toggle density (add only velocity on mouse drag)
 
 ## Tweaking
-The file [params.rs](src/params.rs) provides customizable parameters :
+The file [param.rs](src/param.rs) provides customizable parameters :
 
 - N : Grid size
 - COLOR_MODE : 0 = Additive, 1 = Subtractive
@@ -49,6 +50,15 @@ This implementation of real-time eulerian fluid dynamics is inspired by multiple
 
 ## Notes
 This is my first project in Rust, thus the code might be not very clean at some extent.
+
+## Improvements
+Here is a list of some improvements we can do :
+
+- GPU acceleration
+- Boundaries modes (remove walls / add obstacles...)
+- Multiple fluids (gas / liquid) of different velocities, buoyancy and gravity
+- Deep Learning optimizations
+- Improved rendering (smooth pixels)
 
 ## License
 [MIT License](LICENSE)
